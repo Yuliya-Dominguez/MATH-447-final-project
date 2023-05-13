@@ -47,3 +47,35 @@ youtube_data$Licensed <- as.integer(youtube_data$Licensed)
 youtube_data$official_video <- as.logical(youtube_data$official_video)
 youtube_data$official_video <- as.integer(youtube_data$official_video)
 
+
+#checking for correlation:
+pairs(spotify_data)
+cor(spotify_data, y=Null)
+
+#cannot do pairs or correlation cause there's still non-numeric argument, so going to convert each variable to numeric (Bavita)
+spotify_data$Album_type <- c(single=0,compilation=1,album=1)[spotify_data$Album_type]
+
+spotify_data$Album_type <- as.numeric(unlist(spotify_data$Album_type))
+spotify_data$Danceability <- as.numeric(unlist(spotify_data$Danceability))
+spotify_data$Energy <- as.numeric(unlist(spotify_data$Energy))
+spotify_data$Key <- as.numeric(unlist(spotify_data$Key))
+spotify_data$Loudness <- as.numeric(unlist(spotify_data$Loudness))
+spotify_data$Speechiness <- as.numeric(unlist(spotify_data$Speechiness))
+spotify_data$Acousticness <- as.numeric(unlist(spotify_data$Acousticness))
+spotify_data$Instrumentalness <- as.numeric(unlist(spotify_data$Instrumentalness))
+spotify_data$Liveness <- as.numeric(unlist(spotify_data$Liveness))
+spotify_data$Valence <- as.numeric(unlist(spotify_data$Valence))
+spotify_data$Tempo <- as.numeric(unlist(spotify_data$Tempo))
+spotify_data$Duration_ms <- as.numeric(unlist(spotify_data$Duration_ms))
+spotify_data$Stream <- as.numeric(unlist(spotify_data$Stream))
+summary(spotify_data)
+
+pairs(spotify_data)
+cor(spotify_data)
+
+
+
+
+
+
+
