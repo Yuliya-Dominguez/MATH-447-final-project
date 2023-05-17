@@ -140,4 +140,4 @@ youtube_lm6 <- lm(Views~Likes+Comments+Licensed+Danceability+Energy+Valence+Albu
 summary(youtube_lm6)
 
 #now all the variables are significant (Bavita)
-#next, we should try to find if response varibale has normal distribution and constant variance etc for model assumptions 
+#next, we should try to find if response varibale has normal distribution and constant variance etc for model assumptions, also I did not include any inteaction or nonliner(squared, cubed) transformation so we can also try to see how those change the model
