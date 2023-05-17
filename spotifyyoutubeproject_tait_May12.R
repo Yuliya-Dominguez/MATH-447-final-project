@@ -86,8 +86,8 @@ youtube_data$official_video <- as.integer(youtube_data$official_video)
 youtube_data$Album_type <- c(single=0,compilation=1,album=1)[youtube_data$Album_type]
 youtube_data$Album_type <- as.numeric(youtube_data$Album_type)
 
-Summary(youtube_data)
-#changing all the variables to numeric
+summary(youtube_data)
+#changing all the variables to numeric (Bavita)
 youtube_data$Danceability <- as.numeric(youtube_data$Danceability)
 youtube_data$Energy <- as.numeric(youtube_data$Energy)
 youtube_data$Key <- as.numeric(youtube_data$Key)
@@ -138,6 +138,24 @@ summary(youtube_lm5)
 
 youtube_lm6 <- lm(Views~Likes+Comments+Licensed+Danceability+Energy+Valence+Album_type+Duration_ms+Speechiness+Tempo, data=youtube_data)
 summary(youtube_lm6)
-
 #now all the variables are significant (Bavita)
-#next, we should try to find if response varibale has normal distribution and constant variance etc for model assumptions, also I did not include any inteaction or nonliner(squared, cubed) transformation so we can also try to see how those change the model
+
+anova(youtube_lm, youtube_lm1, youtube_lm2, youtube_lm3, youtube_lm4, youtube_lm5, youtube_lm6)
+#all the models are equal to each other cause the p value is really high but model youtube_lm3 has the smallest p value among these models
+#interaction terms in youtube_lm3:
+youtube_lm_int <- lm(Views~Likes*Comments+Licensed+Danceability+Instrumentalness+Energy+Valence+Album_type+Duration_ms+Liveness+Speechiness+Key+Tempo, data=youtube_data)
+summary(youtube_lm_int)
+
+anova(youtube_lm, youtube_lm1, youtube_lm2, youtube_lm3, youtube_lm4, youtube_lm5, youtube_lm6, youtube_lm_int)
+
+youtube_lm_int2 <- lm(Views~Likes*Comments*Licensed+Danceability+Instrumentalness+Energy+Valence+Album_type+Duration_ms+Liveness+Speechiness+Key+Tempo, data=youtube_data)
+summary(youtube_lm_int2)
+
+youtube_lm_int3 <- lm(Views~Likes*Comments*Licensed*Danceability+Instrumentalness+Energy+Valence+Album_type+Duration_ms+Liveness+Speechiness+Key+Tempo, data=youtube_data)
+summary(youtube_lm_int3)
+
+anova(youtube_lm, youtube_lm1, youtube_lm2, youtube_lm3, youtube_lm4, youtube_lm5, youtube_lm6, youtube_lm_int, youtube_lm_int2, youtube_lm_int3)
+
+
+
+
