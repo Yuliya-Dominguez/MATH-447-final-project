@@ -10,6 +10,8 @@ View(data)
 #Lasso for prediction
 #do Spotify and YouTube separately, use comments instead of views in YouTube
 
+#####Cleaning the data
+#Spotify data
 #Here is a (not effiecient) way I split the data (COLIN)
 #datafix1 <- data.frame(as.matrix(data[,-1:-5]))
 #datafix2 <- data.frame(as.matrix(datafix1[,-2]))
@@ -36,8 +38,42 @@ head(spotify_data$Album_type)
 #datafix4 <- data.frame(as.matrix(datafix3[-12:-14]))
 #datafix5 <- data.frame(as.matrix(datafix4[-15]))
 #youtube_data_worse <- data.frame(as.matrix(datafix5[-17]))
+
+
+#checking for correlation:
+pairs(spotify_data)
+cor(spotify_data, y=Null)
+
+#cannot do pairs or correlation cause there's still non-numeric argument, so going to convert each variable to numeric (Bavita)
+spotify_data$Album_type <- c(single=0,compilation=1,album=1)[spotify_data$Album_type]
+summary(spotify_data)
+spotify_data$Album_type <- as.numeric(spotify_data$Album_type)
+spotify_data$Danceability <- as.numeric(spotify_data$Danceability)
+spotify_data$Energy <- as.numeric(spotify_data$Energy)
+spotify_data$Key <- as.numeric(spotify_data$Key)
+spotify_data$Loudness <- as.numeric(spotify_data$Loudness)
+spotify_data$Speechiness <- as.numeric(spotify_data$Speechiness)
+spotify_data$Acousticness <- as.numeric(spotify_data$Acousticness)
+spotify_data$Instrumentalness <- as.numeric(spotify_data$Instrumentalness)
+spotify_data$Liveness <- as.numeric(spotify_data$Liveness)
+spotify_data$Valence <- as.numeric(spotify_data$Valence)
+spotify_data$Tempo <- as.numeric(spotify_data$Tempo)
+spotify_data$Duration_ms <- as.numeric(spotify_data$Duration_ms)
+spotify_data$Stream <- as.numeric(spotify_data$Stream)
+
+pairs(spotify_data)
+cor(spotify_data)
+
+#we also have NA values in stream variable, so correlation function does not work. SO, omit the observations that include NAs (Bavita)
+is.na(spotify_data)
+as.data.frame(na.omit(spotify_data))
+cor(na.omit(spotify_data))
+pairs(na.omit(spotify_data))
+
+
+#Youtube data
 #removing all the columns at once
-remcol <- c(1,2,3,4,5,6,7,19,20,21,25,28)
+remcol <- c(1,2,3,4,5,7,19,20,21,25,28)
 youtube_data <- data.frame(as.matrix(data[-remcol]))
 
 #converting 'Licensed' and 'official_video' to 0 and 1
@@ -47,35 +83,39 @@ youtube_data$Licensed <- as.integer(youtube_data$Licensed)
 youtube_data$official_video <- as.logical(youtube_data$official_video)
 youtube_data$official_video <- as.integer(youtube_data$official_video)
 
+youtube_data$Album_type <- c(single=0,compilation=1,album=1)[youtube_data$Album_type]
+youtube_data$Album_type <- as.numeric(youtube_data$Album_type)
 
-#checking for correlation:
-pairs(spotify_data)
-cor(spotify_data, y=Null)
+Summary(youtube_data)
+#changing all the variables to numeric
+youtube_data$Danceability <- as.numeric(youtube_data$Danceability)
+youtube_data$Energy <- as.numeric(youtube_data$Energy)
+youtube_data$Key <- as.numeric(youtube_data$Key)
+youtube_data$Loudness <- as.numeric(youtube_data$Loudness)
+youtube_data$Speechiness <- as.numeric(youtube_data$Speechiness)
+youtube_data$Acousticness <- as.numeric(youtube_data$Acousticness)
+youtube_data$Instrumentalness <- as.numeric(youtube_data$Instrumentalness)
+youtube_data$Liveness <- as.numeric(youtube_data$Liveness)
+youtube_data$Valence <- as.numeric(youtube_data$Valence)
+youtube_data$Tempo <- as.numeric(youtube_data$Tempo)
+youtube_data$Duration_ms <- as.numeric(youtube_data$Duration_ms)
+youtube_data$Views <- as.numeric(youtube_data$Views)
+youtube_data$Likes <- as.numeric(youtube_data$Likes)
+youtube_data$Comments <- as.numeric(youtube_data$Comments)
+youtube_data$Licensed <- as.numeric(youtube_data$Licensed)
+youtube_data$official_video <- as.numeric(youtube_data$official_video)
 
-#cannot do pairs or correlation cause there's still non-numeric argument, so going to convert each variable to numeric (Bavita)
-spotify_data$Album_type <- c(single=0,compilation=1,album=1)[spotify_data$Album_type]
+summary(youtube_data)
 
-spotify_data$Album_type <- as.numeric(unlist(spotify_data$Album_type))
-spotify_data$Danceability <- as.numeric(unlist(spotify_data$Danceability))
-spotify_data$Energy <- as.numeric(unlist(spotify_data$Energy))
-spotify_data$Key <- as.numeric(unlist(spotify_data$Key))
-spotify_data$Loudness <- as.numeric(unlist(spotify_data$Loudness))
-spotify_data$Speechiness <- as.numeric(unlist(spotify_data$Speechiness))
-spotify_data$Acousticness <- as.numeric(unlist(spotify_data$Acousticness))
-spotify_data$Instrumentalness <- as.numeric(unlist(spotify_data$Instrumentalness))
-spotify_data$Liveness <- as.numeric(unlist(spotify_data$Liveness))
-spotify_data$Valence <- as.numeric(unlist(spotify_data$Valence))
-spotify_data$Tempo <- as.numeric(unlist(spotify_data$Tempo))
-spotify_data$Duration_ms <- as.numeric(unlist(spotify_data$Duration_ms))
-spotify_data$Stream <- as.numeric(unlist(spotify_data$Stream))
-summary(spotify_data)
+#this data also has NA value so going to omit the observations that include NA values (Bavita)
+youtube_data <- na.omit(youtube_data)
+pairs(youtube_data)
+cor(youtube_data)
 
-pairs(spotify_data)
-cor(spotify_data)
+####Our goal: To find the best model to predict the number of streams/views of a given song on Spotify and/or YouTube(Bavita)
+##mulitple regression on youtube data
+#The order of variables depend on the correlation coefficient for views
+youtube_lm <- lm(Views~Likes+Comments+Licensed+official_video+Loudness+Danceability+Acousticness+Instrumentalness+Energy+Valence+Album_type+Duration_ms+Liveness+Speechiness+Key+Tempo, data=youtube_data)
+summary(youtube_lm)
 
-
-
-
-
-
-
+#taking out official video, loudness, acousticness, instrumentalness, liveness, key and tempo out cause they are insignificant variables
