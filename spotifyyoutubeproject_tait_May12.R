@@ -112,10 +112,32 @@ youtube_data <- na.omit(youtube_data)
 pairs(youtube_data)
 cor(youtube_data)
 
+
+
 ####Our goal: To find the best model to predict the number of streams/views of a given song on Spotify and/or YouTube(Bavita)
 ##mulitple regression on youtube data
 #The order of variables depend on the correlation coefficient for views
 youtube_lm <- lm(Views~Likes+Comments+Licensed+official_video+Loudness+Danceability+Acousticness+Instrumentalness+Energy+Valence+Album_type+Duration_ms+Liveness+Speechiness+Key+Tempo, data=youtube_data)
 summary(youtube_lm)
 
-#taking out official video, loudness, acousticness, instrumentalness, liveness, key and tempo out cause they are insignificant variables
+#taking out official video, loudness, acousticness, instrumentalness, liveness and key  one by one cause they are insignificant variables
+youtube_lm1 <- lm(Views~Likes+Comments+Licensed+Loudness+Danceability+Acousticness+Instrumentalness+Energy+Valence+Album_type+Duration_ms+Liveness+Speechiness+Key+Tempo, data=youtube_data)
+summary(youtube_lm1)
+
+youtube_lm2 <- lm(Views~Likes+Comments+Licensed+Danceability+Acousticness+Instrumentalness+Energy+Valence+Album_type+Duration_ms+Liveness+Speechiness+Key+Tempo, data=youtube_data)
+summary(youtube_lm2)
+
+youtube_lm3 <- lm(Views~Likes+Comments+Licensed+Danceability+Instrumentalness+Energy+Valence+Album_type+Duration_ms+Liveness+Speechiness+Key+Tempo, data=youtube_data)
+summary(youtube_lm3)
+
+youtube_lm4 <- lm(Views~Likes+Comments+Licensed+Danceability+Energy+Valence+Album_type+Duration_ms+Liveness+Speechiness+Key+Tempo, data=youtube_data)
+summary(youtube_lm4)
+
+youtube_lm5 <- lm(Views~Likes+Comments+Licensed+Danceability+Energy+Valence+Album_type+Duration_ms+Speechiness+Key+Tempo, data=youtube_data)
+summary(youtube_lm5)
+
+youtube_lm6 <- lm(Views~Likes+Comments+Licensed+Danceability+Energy+Valence+Album_type+Duration_ms+Speechiness+Tempo, data=youtube_data)
+summary(youtube_lm6)
+
+#now all the variables are significant (Bavita)
+#next, we should try to find if response varibale has normal distribution and constant variance etc for model assumptions 
