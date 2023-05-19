@@ -112,7 +112,13 @@ youtube_data <- na.omit(youtube_data)
 pairs(youtube_data)
 cor(youtube_data)
 
+hist(youtube_data$Views)
+hist(log(youtube_data$Views))
+hist(log10(youtube_data$Views))
 
+
+youtube_data$Views = log10(youtube_data$Views)
+youtube_data <- inf.omit(youtube_data)
 
 ####Our goal: To find the best model to predict the number of streams/views of a given song on Spotify and/or YouTube(Bavita)
 ##mulitple regression on youtube data
@@ -154,7 +160,12 @@ summary(youtube_lm_int2)
 youtube_lm_int3 <- lm(Views~Likes*Comments*Licensed*Danceability+Instrumentalness+Energy+Valence+Album_type+Duration_ms+Liveness+Speechiness+Key+Tempo, data=youtube_data)
 summary(youtube_lm_int3)
 
-anova(youtube_lm, youtube_lm1, youtube_lm2, youtube_lm3, youtube_lm4, youtube_lm5, youtube_lm6, youtube_lm_int, youtube_lm_int2, youtube_lm_int3)
+youtube_lm_int4 <- lm(Views~Likes+Comments+Licensed+official_video+Loudness*Energy+Danceability*Valence+Album_type+Duration_ms+Liveness+Speechiness+Key+Tempo, data=youtube_data)
+summary(youtube_lm_int4)
+
+
+
+anova(youtube_lm, youtube_lm1, youtube_lm2, youtube_lm3, youtube_lm4, youtube_lm5, youtube_lm6, youtube_lm_int, youtube_lm_int2, youtube_lm_int3,youtube_lm_int4, youtube_lm_int5)
 
 
 #Log transforming views for youtube data
