@@ -45,8 +45,10 @@ pairs(spotify_data)
 cor(spotify_data, y=Null)
 
 #cannot do pairs or correlation cause there's still non-numeric argument, so going to convert each variable to numeric (Bavita)
-spotify_data$Album_type <- c(single=0,compilation=1,album=1)[spotify_data$Album_type]
+
+spotify_data$Album_type <- c(single=0,compilation=1,album=1)[spotify_data$Album_type] # this line is instead of the for loop above, as they do the same thing and cannot be run together
 summary(spotify_data)
+'''
 spotify_data$Album_type <- as.numeric(spotify_data$Album_type)
 spotify_data$Danceability <- as.numeric(spotify_data$Danceability)
 spotify_data$Energy <- as.numeric(spotify_data$Energy)
@@ -60,6 +62,10 @@ spotify_data$Valence <- as.numeric(spotify_data$Valence)
 spotify_data$Tempo <- as.numeric(spotify_data$Tempo)
 spotify_data$Duration_ms <- as.numeric(spotify_data$Duration_ms)
 spotify_data$Stream <- as.numeric(spotify_data$Stream)
+'''
+
+# Convert all columns to numeric
+spotify_data <- as.data.frame(lapply(spotify_data, as.numeric))
 
 pairs(spotify_data)
 cor(spotify_data)
@@ -88,6 +94,7 @@ youtube_data$Album_type <- as.numeric(youtube_data$Album_type)
 
 summary(youtube_data)
 #changing all the variables to numeric (Bavita)
+'''
 youtube_data$Danceability <- as.numeric(youtube_data$Danceability)
 youtube_data$Energy <- as.numeric(youtube_data$Energy)
 youtube_data$Key <- as.numeric(youtube_data$Key)
@@ -104,6 +111,10 @@ youtube_data$Likes <- as.numeric(youtube_data$Likes)
 youtube_data$Comments <- as.numeric(youtube_data$Comments)
 youtube_data$Licensed <- as.numeric(youtube_data$Licensed)
 youtube_data$official_video <- as.numeric(youtube_data$official_video)
+'''
+
+# Convert all columns to numeric
+youtube_data <- as.data.frame(lapply(youtube_data, as.numeric))
 
 summary(youtube_data)
 
@@ -116,9 +127,8 @@ hist(youtube_data$Views)
 hist(log(youtube_data$Views))
 hist(log10(youtube_data$Views))
 
-
-youtube_data$Views = log10(youtube_data$Views)
-youtube_data <- inf.omit(youtube_data)
+#youtube_data <- youtube_data[youtube_data$Views > 0, ] #drop rows that are <= 0 before log transform
+#youtube_data$Views = log10(youtube_data$Views)
 
 ####Our goal: To find the best model to predict the number of streams/views of a given song on Spotify and/or YouTube(Bavita)
 ##mulitple regression on youtube data
@@ -163,16 +173,69 @@ summary(youtube_lm_int3)
 youtube_lm_int4 <- lm(Views~Likes+Comments+Licensed+official_video+Loudness*Energy+Danceability*Valence+Album_type+Duration_ms+Liveness+Speechiness+Key+Tempo, data=youtube_data)
 summary(youtube_lm_int4)
 
-
-
 anova(youtube_lm, youtube_lm1, youtube_lm2, youtube_lm3, youtube_lm4, youtube_lm5, youtube_lm6, youtube_lm_int, youtube_lm_int2, youtube_lm_int3,youtube_lm_int4, youtube_lm_int5)
 
 
+#Yuliya
 #Log transforming views for youtube data
 youtube_data_ln <- youtube_data
-youtube_data_ln$Views <- log(youtube_data_ln$Views)
+youtube_data_ln <- youtube_data_ln[youtube_data_ln$Views > 0, ] #drop rows that are <= 0 before log transform
+youtube_data_ln <- na.omit(youtube_data_ln)
+youtube_data_ln$Views <- log(youtube_data_ln$Views) 
+
 #Using youtube_lm6's model with transformed response:
 
-youtube_lm_ln <- lm(Views~Likes+Comments+Licensed+Danceability+Energy+Valence+Album_type+Duration_ms+Speechiness+Tempo, data=youtube_data.ln)
+youtube_lm_ln <- lm(Views~Likes+Comments+Licensed+Danceability+Energy+Valence+Album_type+Duration_ms+Speechiness+Tempo, data=youtube_data_ln)
 summary(youtube_lm_ln)
 
+library(DAAG)
+vif(youtube_lm_ln)
+'''
+According to variance inflation factor, all variables have values below 5,
+which implies relatively low multicollinearity.
+'''
+
+residuals <- residuals(youtube_lm_ln)
+predicted <- predict(youtube_lm_ln)
+# Scatter plot of residuals
+plot(predicted, residuals, xlab = "Predicted Values", ylab = "Residuals", main = "Scatter Plot of Residuals")
+abline(h = 0, col = "red", lwd = 2)  # Add a horizontal line at y = 0
+
+#residuals look strange, since there should not be values higher than 10
+max(predicted) #20.45
+max(youtube_data_ln$Views) #9.907
+hist(residuals)
+#The residuals are approxiamtely normally distributed around the mean and median, which is a good sign.
+#Some of the results were seriously overesimated, but very few.
+
+
+#Split the data on train and test sets for proper accuracy evaluation, then run the model.
+
+set.seed(42)
+train_index <- sample(1:nrow(youtube_data_ln), nrow(youtube_data_ln) * 0.7)  # 70% for training
+train_data <- youtube_data_ln[train_index, ]
+test_data <- youtube_data_ln[-train_index, ]
+
+youtube_ln_train <- lm(Views~Likes+Comments+Licensed+Danceability+Energy+Valence+Album_type+Duration_ms+Speechiness+Tempo, data=train_data)
+summary(youtube_ln_train)
+#R-squared improved by a 0.02
+
+#Obtain predicted values using test data to compare to actual values in test data
+predicted <- predict(youtube_ln_train, newdata = test_data)
+
+#Mean Squared Error
+mse <- mean((test_data$Views - predicted)^2) # 1.029 - no idea how to interpret that
+mse
+
+#Adjusting the predictors: picking the ones with correlation above 0.15, removing the rest
+youtube_ln_train1 <- lm(Views~Likes+Comments+Licensed+official_video+Danceability+Energy+Loudness+Acousticness+Instrumentalness, data=train_data)
+summary(youtube_ln_train1)
+#R-squared improved!
+predicted1 <- predict(youtube_ln_train1, newdata = test_data)
+mse1 <- mean((test_data$Views - predicted1)^2) # 0.996 - a bit better
+mse1
+
+residuals1 <- test_data$Views - predicted1
+plot(predicted1, residuals1, xlab = "Predicted Values", ylab = "Residuals", main = "Scatter Plot of Residuals")
+abline(h = 0, col = "red", lwd = 2)  # Add a horizontal line at y = 0
+hist(residuals1)
