@@ -78,11 +78,11 @@ pairs(na.omit(spotify_data))
 
 
 #Youtube data
-#removing all the columns at once
+#removing all the columns that are not important for this analysis at once
 remcol <- c(1,2,3,4,5,7,19,20,21,25,28)
 youtube_data <- data.frame(as.matrix(data[-remcol]))
 
-#converting 'Licensed' and 'official_video' to 0 and 1
+#creating dummy variables, ex: converting 'Licensed' and 'official_video' to 0 and 1
 youtube_data$Licensed <- as.logical(youtube_data$Licensed)
 youtube_data$Licensed <- as.integer(youtube_data$Licensed)
 
@@ -120,15 +120,18 @@ summary(youtube_data)
 
 #this data also has NA value so going to omit the observations that include NA values (Bavita)
 youtube_data <- na.omit(youtube_data)
-pairs(youtube_data)
-cor(youtube_data)
 
+#histograms that show log transformation makes the response closer to normal
 hist(youtube_data$Views)
 hist(log(youtube_data$Views))
 hist(log10(youtube_data$Views))
 
-#youtube_data <- youtube_data[youtube_data$Views > 0, ] #drop rows that are <= 0 before log transform
-#youtube_data$Views = log10(youtube_data$Views)
+#log transformation of views
+youtube_data <- youtube_data[youtube_data$Views > 0, ] #drop rows that are <= 0 before log transform
+youtube_data$Views = log10(youtube_data$Views)
+
+pairs(youtube_data)
+cor(youtube_data)
 
 ####Our goal: To find the best model to predict the number of streams/views of a given song on Spotify and/or YouTube(Bavita)
 ##mulitple regression on youtube data
