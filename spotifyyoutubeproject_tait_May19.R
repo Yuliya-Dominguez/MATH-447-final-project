@@ -41,8 +41,8 @@ head(spotify_data$Album_type)
 
 
 #checking for correlation:
-pairs(spotify_data)
-cor(spotify_data, y=Null)
+#pairs(spotify_data)
+#cor(spotify_data, y=Null)
 
 #cannot do pairs or correlation cause there's still non-numeric argument, so going to convert each variable to numeric (Bavita)
 spotify_data$Album_type <- c(single=0,compilation=1,album=1)[spotify_data$Album_type]
@@ -61,8 +61,8 @@ spotify_data$Tempo <- as.numeric(spotify_data$Tempo)
 spotify_data$Duration_ms <- as.numeric(spotify_data$Duration_ms)
 spotify_data$Stream <- as.numeric(spotify_data$Stream)
 
-pairs(spotify_data)
-cor(spotify_data)
+#pairs(spotify_data)
+#cor(spotify_data)
 
 #we also have NA values in stream variable, so correlation function does not work. SO, omit the observations that include NAs (Bavita)
 is.na(spotify_data)
@@ -162,6 +162,32 @@ youtube_data_ln <- youtube_data
 youtube_data_ln$Views <- log(youtube_data_ln$Views)
 #Using youtube_lm6's model with transformed response:
 
-youtube_lm_ln <- lm(Views~Likes+Comments+Licensed+Danceability+Energy+Valence+Album_type+Duration_ms+Speechiness+Tempo, data=youtube_data.ln)
+youtube_lm_ln <- lm(Views~Likes+Comments+Licensed+Danceability+Energy+Valence+Album_type+Duration_ms+Speechiness+Tempo, data=youtube_data_ln)
 summary(youtube_lm_ln)
+
+#Log transforming spotify data
+spotify_data_ln <- spotify_data
+spotify_data_ln$Stream <- log(spotify_data$Stream)
+
+#Lasso implementation
+library(glmnet)
+set.seed(5) #to get the same results
+
+train <- sample(1:dim(youtube_data.lasso)[1], dim(youtube_data.lasso)[1]/2)
+test <- -train
+
+youtube_data.train <- youtube_data[train,]
+youtube_data.test <- youtube_data[test,]
+
+train.mat <- model.matrix(Views ~ ., data= youtube_data.train)[,-1]
+test.mat <- model.matrix(Views ~., data = youtube_data.test)[,-1]
+
+fit.lasso <- glmnet(train.mat, youtube_data.train$Views, alpha=1)
+cv.lasso <- cv.glmnet(train.mat, youtube_data.train$Views, alpha=1)
+
+bestlam.lasso <- cv.lasso$lambda.min #obtaining optimal lambda using cross validation
+bestlam.lasso
+
+pred.lasso <- predict(fit.lasso, s = bestlam.lasso, newx = test.mat)
+mean((pred.lasso - youtube_data.test$Views)^2)
 
