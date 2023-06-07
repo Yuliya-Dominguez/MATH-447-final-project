@@ -267,6 +267,7 @@ plot(predicted3, residuals4, xlab = "Predicted Values", ylab = "Residuals", main
 abline(h = 0, col = "red", lwd = 2)  # Add a horizontal line at y = 0
 ggplot(youtube_data, aes(x = predicted3, y = youtube_data$Views)) + geom_point() + geom_abline(intercept=0, slope=1) +
   labs(x='Predicted Values', y='Actual Values', title='Predicted vs. Actual Values')
+hist(residuals3)
 
 #youtube_lm_int3 is one of the best MLR models we have got. It has highest R-squared,
 # lowest residual standard error, and slightly more fit on predicted vs actual values plot. Still not good.
