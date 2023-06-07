@@ -243,6 +243,17 @@ plot(predicted1, residuals1, xlab = "Predicted Values", ylab = "Residuals", main
 abline(h = 0, col = "red", lwd = 2)  # Add a horizontal line at y = 0
 hist(residuals1)
 
+#Same model to fit all data.
+predicted5 <- predict(youtube_ln_train1, newdata = youtube_data)
+mse5 <- mean((youtube_data$Views - predicted5)^2)
+mse5
+residuals5 <- youtube_data$Views - predicted5
+plot(predicted5, residuals5, xlab = "Predicted Values", ylab = "Residuals", main = "Scatter Plot of Residuals")
+abline(h = 0, col = "red", lwd = 2)  # Add a horizontal line at y = 0
+hist(residuals5)
+ggplot(youtube_data, aes(x = predicted5, y = youtube_data$Views)) + geom_point(colour = "660066") + geom_abline(intercept=0, slope=1) +
+  labs(x='Predicted Values', y='Actual Values', title='Predicted vs. Actual Values')
+
 
 library(ggplot2) 
 
@@ -253,6 +264,8 @@ ggplot(test_data, aes(x = predicted1, y = test_data$Views)) + geom_point() + geo
 youtube_lm_int2 <- lm(Views~Likes*Comments*Licensed+Danceability+Instrumentalness+Energy+Valence+Album_type+Duration_ms+Liveness+Speechiness+Key+Tempo, data=youtube_data)
 residuals2 <- residuals(youtube_lm_int2)
 predicted2 <- predict(youtube_lm_int2)
+mse2 <- mean((youtube_data$Views - predicted2)^2)
+mse2
 # Scatter plot of residuals
 plot(predicted2, residuals2, xlab = "Predicted Values", ylab = "Residuals", main = "Scatter Plot of Residuals")
 abline(h = 0, col = "red", lwd = 2)  # Add a horizontal line at y = 0
@@ -262,6 +275,8 @@ ggplot(youtube_data, aes(x = predicted2, y = youtube_data$Views)) + geom_point()
 youtube_lm_int3 <- lm(Views~Likes*Comments*Licensed*Danceability+Instrumentalness+Energy+Valence+Album_type+Duration_ms+Liveness+Speechiness+Key+Tempo, data=youtube_data)
 residuals3 <- residuals(youtube_lm_int3)
 predicted3 <- predict(youtube_lm_int3)
+mse3 <- mean((youtube_data$Views - predicted3)^2)
+mse3
 # Scatter plot of residuals
 plot(predicted3, residuals4, xlab = "Predicted Values", ylab = "Residuals", main = "Scatter Plot of Residuals")
 abline(h = 0, col = "red", lwd = 2)  # Add a horizontal line at y = 0
@@ -269,6 +284,30 @@ ggplot(youtube_data, aes(x = predicted3, y = youtube_data$Views)) + geom_point()
   labs(x='Predicted Values', y='Actual Values', title='Predicted vs. Actual Values')
 hist(residuals3)
 
-#youtube_lm_int3 is one of the best MLR models we have got. It has highest R-squared,
-# lowest residual standard error, and slightly more fit on predicted vs actual values plot. Still not good.
-#youtube_ln_train1 is about as "good" as youtube_lm_int3 with similar R-squared, residual error, and fit.
+#This is the same model as youtube_lm_int3, but split on training and test sets to see its' real accuracy.
+youtube_lm_int6 <- lm(Views~Likes*Comments*Licensed*Danceability+Instrumentalness+Energy+Valence+Album_type+Duration_ms+Liveness+Speechiness+Key+Tempo, data=train_data)
+predicted6 <- predict(youtube_lm_int6, newdata = test_data)
+residuals6 <- test_data$Views - predicted6
+mse6 <- mean((test_data$Views - predicted6)^2)
+mse6
+# Scatter plot of residuals
+plot(predicted6, residuals6, xlab = "Predicted Values", ylab = "Residuals", main = "Scatter Plot of Residuals")
+abline(h = 0, col = "red", lwd = 2)  # Add a horizontal line at y = 0
+ggplot(test_data, aes(x = predicted6, y = test_data$Views)) + geom_point() + geom_abline(intercept=0, slope=1) +
+  labs(x='Predicted Values', y='Actual Values', title='Predicted vs. Actual Values')
+hist(residuals6)
+
+#Before, youtube_lm_int3 seemed one of the best MLR models we have got. It had highest R-squared,
+# lowest residual standard error, and slightly more fit on predicted vs actual values plot.
+#But after splitting data on train and test, and rerunning the model only on train set,
+#then predicting test set it has not seen yet, the MSE worsened a lot (1.433424)!
+#youtube_ln_train1 is now the best model we have got. It had MSE of the test data 0.9957658,
+#and after using this trained model to predict the full data, we got MSE = 0.9323132.
+
+install.packages("relaimpo")
+#Plot relative importance of the variables in the model youtube_ln_train1
+relative_importance <- calc.relimp(youtube_ln_train1, type="lmg")$lmg
+df = data.frame(x1=names(relative_importance), y1=round(c(relative_importance) * 100,2))
+ggplot(df, aes(x = reorder(x1, -y1), y = y1)) + geom_col(fill = "336666") + geom_text(aes(label=y1), vjust=.3, hjust=1.4, size=3, color="black")+
+  coord_flip() + labs(title = "Relative importance of variables", y = "Importance level", x = "") + theme_classic(base_size = 15)
+
