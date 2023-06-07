@@ -249,7 +249,7 @@ library(ggplot2)
 ggplot(test_data, aes(x = predicted1, y = test_data$Views)) + geom_point() + geom_abline(intercept=0, slope=1) +
         labs(x='Predicted Values', y='Actual Values', title='Predicted vs. Actual Values')
 
-#Trying the earlier model that had decent ANOVA results.
+#Trying the earlier models that had decent ANOVA results.
 youtube_lm_int2 <- lm(Views~Likes*Comments*Licensed+Danceability+Instrumentalness+Energy+Valence+Album_type+Duration_ms+Liveness+Speechiness+Key+Tempo, data=youtube_data)
 residuals2 <- residuals(youtube_lm_int2)
 predicted2 <- predict(youtube_lm_int2)
@@ -258,3 +258,14 @@ plot(predicted2, residuals2, xlab = "Predicted Values", ylab = "Residuals", main
 abline(h = 0, col = "red", lwd = 2)  # Add a horizontal line at y = 0
 ggplot(youtube_data, aes(x = predicted2, y = youtube_data$Views)) + geom_point() + geom_abline(intercept=0, slope=1) +
   labs(x='Predicted Values', y='Actual Values', title='Predicted vs. Actual Values')
+
+youtube_lm_int3 <- lm(Views~Likes*Comments*Licensed*Danceability+Instrumentalness+Energy+Valence+Album_type+Duration_ms+Liveness+Speechiness+Key+Tempo, data=youtube_data)
+residuals3 <- residuals(youtube_lm_int3)
+predicted3 <- predict(youtube_lm_int3)
+# Scatter plot of residuals
+plot(predicted3, residuals4, xlab = "Predicted Values", ylab = "Residuals", main = "Scatter Plot of Residuals")
+abline(h = 0, col = "red", lwd = 2)  # Add a horizontal line at y = 0
+ggplot(youtube_data, aes(x = predicted3, y = youtube_data$Views)) + geom_point() + geom_abline(intercept=0, slope=1) +
+  labs(x='Predicted Values', y='Actual Values', title='Predicted vs. Actual Values')
+
+
