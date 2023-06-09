@@ -207,5 +207,5 @@ bestlam.lasso <- cv.lasso$lambda.min #obtaining optimal lambda using cross valid
 bestlam.lasso
 
 pred.lasso <- predict(fit.lasso, s = bestlam.lasso, newx = test.mat)
-mean((pred.lasso - youtube_data.test$Views)^2)
-
+mse_lasso = mean((pred.lasso - youtube_data.test$Views)^2)
+mse_lasso
