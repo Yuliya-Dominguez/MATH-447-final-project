@@ -174,6 +174,8 @@ residuals1 <- test_data$Views - predicted1
 plot(predicted1, residuals1, xlab = "Predicted Values", ylab = "Residuals", main = "Scatter Plot of Residuals")
 abline(h = 0, col = "red", lwd = 2)  # Add a horizontal line at y = 0
 hist(residuals1)
+ggplot(test_data, aes(x = predicted1, y = test_data$Views)) + geom_point(colour = "660066") + geom_abline(intercept=0, slope=1) +
+  labs(x='Predicted Values', y='Actual Values', title='Predicted vs. Actual Values')
 
 
 install.packages("relaimpo")
