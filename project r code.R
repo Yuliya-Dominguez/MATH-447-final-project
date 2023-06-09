@@ -190,7 +190,7 @@ ggplot(df, aes(x = reorder(x1, -y1), y = y1)) + geom_col(fill = "336666") + geom
 library(glmnet)
 set.seed(5) #to get the same results
 
-train <- sample(1:dim(youtube_data.lasso)[1], dim(youtube_data.lasso)[1]/2)
+train <- sample(1:dim(youtube_data_ln)[1], dim(youtube_data_ln)[1]/2)
 test <- -train
 
 youtube_data.train <- youtube_data[train,]
