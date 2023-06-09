@@ -177,6 +177,7 @@ hist(residuals1)
 
 
 install.packages("relaimpo")
+library(relaimpo)
 #Plot relative importance of the variables in the model youtube_ln_train1
 relative_importance <- calc.relimp(youtube_ln_train1, type="lmg")$lmg
 df = data.frame(x1=names(relative_importance), y1=round(c(relative_importance) * 100,2))
@@ -189,11 +190,11 @@ ggplot(df, aes(x = reorder(x1, -y1), y = y1)) + geom_col(fill = "336666") + geom
 library(glmnet)
 set.seed(5) #to get the same results
 
-train <- sample(1:dim(youtube_data.lasso)[1], dim(youtube_data.lasso)[1]/2)
+train <- sample(1:dim(youtube_data_ln)[1], dim(youtube_data_ln)[1]/2)
 test <- -train
 
-youtube_data.train <- youtube_data[train,]
-youtube_data.test <- youtube_data[test,]
+youtube_data.train <- youtube_data_ln[train,]
+youtube_data.test <- youtube_data_ln[test,]
 
 train.mat <- model.matrix(Views ~ ., data= youtube_data.train)[,-1]
 test.mat <- model.matrix(Views ~., data = youtube_data.test)[,-1]
