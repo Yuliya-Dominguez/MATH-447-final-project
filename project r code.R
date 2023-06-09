@@ -191,6 +191,8 @@ residuals1 <- test_data$Views - predicted1
 plot(predicted1, residuals1, xlab = "Predicted Values", ylab = "Residuals", main = "Scatter Plot of Residuals")
 abline(h = 0, col = "red", lwd = 2)  # Add a horizontal line at y = 0
 hist(residuals1)
+ggplot(test_data, aes(x = predicted1, y = test_data$Views)) + geom_point(colour = "660066") + geom_abline(intercept=0, slope=1) +
+  labs(x='Predicted Values', y='Actual Values', title='Predicted vs. Actual Values')
 
 
 install.packages("relaimpo")
@@ -225,9 +227,14 @@ bestlam.lasso <- cv.lasso$lambda.min #obtaining optimal lambda using cross valid
 bestlam.lasso
 
 pred.lasso <- predict(fit.lasso, s = bestlam.lasso, newx = test.mat)
+<<<<<<< HEAD
 mean((pred.lasso - youtube_data.test$Views)^2)
 
 
 
 
 
+=======
+mse_lasso = mean((pred.lasso - youtube_data.test$Views)^2)
+mse_lasso
+>>>>>>> ff81dd4234e4eeb5f1f9a6b46e8c1c739472a518
