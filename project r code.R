@@ -179,8 +179,9 @@ hist(residuals1)
 install.packages("relaimpo")
 library(relaimpo)
 #Plot relative importance of the variables in the model youtube_ln_train1
-relative_importance <- calc.relimp(youtube_ln_train1, type="lmg")$lmg
+relative_importance <- calc.relimp(youtube_ln_train, type="lmg")$lmg
 df = data.frame(x1=names(relative_importance), y1=round(c(relative_importance) * 100,2))
+library(ggplot2) 
 ggplot(df, aes(x = reorder(x1, -y1), y = y1)) + geom_col(fill = "336666") + geom_text(aes(label=y1), vjust=.3, hjust=1.4, size=3, color="black")+
   coord_flip() + labs(title = "Relative importance of variables", y = "Importance level", x = "") + theme_classic(base_size = 15)
 
