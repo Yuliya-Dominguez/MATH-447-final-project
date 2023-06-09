@@ -84,7 +84,7 @@ youtube_data_ln$Duration_ms <- log10(youtube_data_ln$Duration_ms)
 youtube_data_ln$Likes <- log(youtube_data_ln$Likes+1) 
 youtube_data_ln$Comments <- log10(youtube_data_ln$Comments+1) 
 
-
+cor(youtube_data_ln$views)
 ####Our goal: To find the best model to predict the number of streams/views of a given song on Spotify and/or YouTube(Bavita)
 ##mulitple regression on youtube data
 #The order of variables depend on the correlation coefficient for views
@@ -105,23 +105,25 @@ youtube_lm_2 <- lm(Views~Likes+Comments+Licensed+official_video+Loudness+Danceab
 summary(youtube_lm_2)
 vif(youtube_lm_2)
 
-#models with interactions
-youtube_lm_x <- lm(Views~Likes*Comments+Licensed+official_video+Loudness+Danceability+Acousticness+Instrumentalness+Energy+Valence+Album_type+Duration_ms+Liveness+Speechiness, data=youtube_data_ln)
-summary(youtube_lm_x)
-vif(youtube_lm_x)
-
 #more backward selection
 youtube_lm_y <- lm(Views~Likes+Comments+Licensed+official_video+Loudness+Danceability+Acousticness+Instrumentalness+Energy+Album_type+Duration_ms+Liveness+Speechiness, data=youtube_data_ln)
 summary(youtube_lm_y)#without valence
 vif(youtube_lm_y)
 
-youtube_lm_z <- lm(Views~Likes+Comments+Licensed+official_video+Loudness+Danceability+Instrumentalness+Energy+Album_type+Duration_ms+Liveness+Speechiness, data=youtube_data_ln)
+youtube_lm_z <- lm(Views~Likes+Comments+Licensed+official_video+Loudness+Danceability+Instrumentalness+Energy+Valence+Album_type+Duration_ms+Liveness+Speechiness, data=youtube_data_ln)
 summary(youtube_lm_z)#without acousticness
 vif(youtube_lm_z)
 
+#models with interactions
+youtube_lm_x <- lm(Views~Likes*Comments+Licensed+official_video+Loudness+Danceability+Acousticness+Instrumentalness+Energy+Valence+Album_type+Duration_ms+Liveness+Speechiness, data=youtube_data_ln)
+summary(youtube_lm_x)
+vif(youtube_lm_x)
+
+youtube_lm_x1 <- lm(Views~Licensed+official_video+Loudness+Danceability+Acousticness+Instrumentalness+Energy+Valence+Album_type+Duration_ms+Liveness+Speechiness, data=youtube_data_ln)
+summary(youtube_lm_x1)
 
 
-anova(youtube_lm,youtube_lm_1,youtube_lm_2,youtube_lm_y,youtube_lm_z)#smallestF value for youtube_lm_4 
+anova(youtube_lm,youtube_lm_1,youtube_lm_2,youtube_lm_y,youtube_lm_z)#smallestF value for youtube_lm_y
 
 #final model should be 
 youtube_lm_y <- lm(Views~Likes+Comments+Licensed+official_video+Loudness+Danceability+Acousticness+Instrumentalness+Energy+Album_type+Duration_ms+Liveness+Speechiness, data=youtube_data_ln)
@@ -170,6 +172,21 @@ mse1 <- mean((test_data$Views - predicted1)^2) #0.398
 mse1
 
 
+#with the full model
+youtube_ln_train2 <- lm(Views~Likes*Comments+Licensed+official_video+Loudness+Danceability+Acousticness+Instrumentalness+Energy+Valence+Album_type+Duration_ms+Liveness+Speechiness, data=train_data)
+summary(youtube_ln_train2)
+#R-squared decreased!
+predicted2 <- predict(youtube_ln_train2, newdata = test_data)
+mse2 <- mean((test_data$Views - predicted2)^2) #0.3799
+mse2
+
+
+
+
+
+
+
+
 residuals1 <- test_data$Views - predicted1
 plot(predicted1, residuals1, xlab = "Predicted Values", ylab = "Residuals", main = "Scatter Plot of Residuals")
 abline(h = 0, col = "red", lwd = 2)  # Add a horizontal line at y = 0
@@ -207,11 +224,21 @@ train.mat <- model.matrix(Views ~ ., data= youtube_data.train)[,-1]
 test.mat <- model.matrix(Views ~., data = youtube_data.test)[,-1]
 
 fit.lasso <- glmnet(train.mat, youtube_data.train$Views, alpha=1)
+plot(fit.lasso)
 cv.lasso <- cv.glmnet(train.mat, youtube_data.train$Views, alpha=1)
-
+plot(cv.lasso)
 bestlam.lasso <- cv.lasso$lambda.min #obtaining optimal lambda using cross validation
 bestlam.lasso
 
 pred.lasso <- predict(fit.lasso, s = bestlam.lasso, newx = test.mat)
+<<<<<<< HEAD
+mean((pred.lasso - youtube_data.test$Views)^2)
+
+
+
+
+
+=======
 mse_lasso = mean((pred.lasso - youtube_data.test$Views)^2)
 mse_lasso
+>>>>>>> ff81dd4234e4eeb5f1f9a6b46e8c1c739472a518
