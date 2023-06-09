@@ -177,6 +177,10 @@ hist(residuals1)
 ggplot(test_data, aes(x = predicted1, y = test_data$Views)) + geom_point(colour = "660066") + geom_abline(intercept=0, slope=1) +
   labs(x='Predicted Values', y='Actual Values', title='Predicted vs. Actual Values')
 
+#Here we want to plot the histogram of the residuals for the whole dataset, so we run prediction on youtube_data_ln first.
+predicted3 <- predict(youtube_ln_train1, newdata = youtube_data_ln)
+residuals3 <- youtube_data_ln$Views - predicted3
+hist(residuals3)
 
 install.packages("relaimpo")
 library(relaimpo)
